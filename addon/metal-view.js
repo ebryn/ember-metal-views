@@ -15,7 +15,8 @@ Ember.View.reopenClass({
 
 function MetalView(props) {
   extend(this, {
-    tagName: null
+    tagName: null,
+    _keywords: Ember.create(null)
   });
   extend(this, props);
   console.log(this);

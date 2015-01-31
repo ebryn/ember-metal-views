@@ -3,6 +3,10 @@
   {{view 'select'}}
 {{/view}}
 
-{{#test-metal-component i-am-a-component="bro"}}
-  ohai
-{{/test-metal-component}}
+{{#view 'test-metal-view'}}
+  1
+  {{#test-metal-component i-am-a-component="bro"}}
+    3
+  {{/test-metal-component}}
+  4
+{{/view}}
