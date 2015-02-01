@@ -13,17 +13,67 @@ Ember.View.reopenClass({
   detect: detect
 });
 
+var metaFor = Ember.meta;
+var finishPartial = Ember.Mixin.finishPartial;
+var IS_BINDING = Ember.IS_BINDING;
+var computed = Ember.computed;
+var get = Ember.get;
+
 function MetalView(props) {
-  extend(this, {
-    tagName: null,
-    _keywords: Ember.create(null)
-  });
-  extend(this, props);
-  console.log(this);
+  this.isView = true;
+  this.tagName = null;
+  this.isVirtual = false;
+  this.elementId = null;
+  this._keywords = undefined;
+  this._baseContext = undefined;
+  this._contextStream = undefined;
+  this._streamBindings = undefined;
+
+  var meta = metaFor(this); // FIXME
+  var proto = meta.proto;
+  meta.proto = this; // Secret handshake to prevent observers firing during init
+
+  var bindings = meta.bindings = meta.bindings || {};
+  var possibleDesc;
+  var desc;
+  for (var key in props) {
+    if (!props.hasOwnProperty(key)) { continue; }
+    if (IS_BINDING.test(key)) {
+      bindings[key] = props[key];
+    }
+    possibleDesc = this[key];
+    desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
+    if (desc) {
+      desc.set(this, key, props[key]);
+    } else {
+      this[key] = props[key];
+    }
+  }
+
+  if (!this.isVirtual && !this.elementId) {
+    this.elementId = Ember.guidFor(this);
+  }
+
+  finishPartial(this, meta);
+  this.init();
+  meta.proto = proto;
 }
 
+MetalView.prototype.__ember_meta__ = metaFor(MetalView.prototype);
+MetalView.prototype.__ember_meta__.proto = MetalView.prototype;
+
+Ember.defineProperty(MetalView.prototype, 'parentView', computed('_parentView', function() {
+  var parent = this._parentView;
+
+  if (parent && parent.isVirtual) {
+    return get(parent, 'parentView');
+  } else {
+    return parent;
+  }
+}));
+
 extend(MetalView.prototype, {
-  isView: true,
+
   _childViews: [],
 
   // TODO: remove this
@@ -83,22 +133,31 @@ extend(MetalView.prototype, {
 
   _transitionTo: function(state) {
     this._state = state;
-  }
+  },
+
+  __defineNonEnumerable: function(property) {
+    this[property.name] = property.descriptor.value;
+  },
+
+  _wrapAsScheduled: Ember.View.proto()._wrapAsScheduled
 });
 
-var EmberViewPrototype = Ember.View.proto();
-var MethodsFromEmberViewMixin = {
-  render: EmberViewPrototype.render,
-  appendChild: EmberViewPrototype.appendChild,
-  createChildView: EmberViewPrototype.createChildView,
-  _wrapAsScheduled: EmberViewPrototype._wrapAsScheduled,
-  remove: EmberViewPrototype.remove,
-};
-extend(MetalView.prototype, MethodsFromEmberViewMixin);
+var EmberViewModule = Ember.__loader.require('ember-views/views/view');
+
+EmberViewModule.ViewKeywordSupport.apply(MetalView.prototype);
+EmberViewModule.ViewStreamSupport.apply(MetalView.prototype);
+EmberViewModule.ViewChildViewsSupport.apply(MetalView.prototype);
+EmberViewModule.ViewContextSupport.apply(MetalView.prototype);
+EmberViewModule.TemplateRenderingSupport.apply(MetalView.prototype);
+
+var Evented = Ember.__loader.require('ember-runtime/mixins/evented')['default'];
+Evented.apply(MetalView.prototype);
 
 extend(MetalView, {
-  classProps: ['classProps', 'isViewClass', 'proto', 'create', 'extend', 'reopenClass'],
+  classProps: ['classProps', 'isClass', 'isViewClass', 'isMethod', 'proto', 'create', 'extend', 'reopenClass'],
+  isClass: true,
   isViewClass: true,
+  isMethod: false,
 
   proto: function() {
     return MetalView.prototype;
