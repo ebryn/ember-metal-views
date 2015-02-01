@@ -1,18 +1,6 @@
 import Ember from 'ember';
 import { extend } from './utils';
 
-function detect(obj) {
-  return obj.isViewClass || this._super(obj);
-}
-
-Ember.CoreView.reopenClass({
-  detect: detect
-});
-
-Ember.View.reopenClass({
-  detect: detect
-});
-
 var metaFor = Ember.meta;
 var finishPartial = Ember.Mixin.finishPartial;
 var IS_BINDING = Ember.IS_BINDING;
