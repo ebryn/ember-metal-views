@@ -44,7 +44,7 @@ function isBinding(key) {
 var MetalView = CoreObject.extend({
   init: function(props) {
     this.isView = true;
-    this.tagName = props.tagName || null;
+    this.tagName = props.tagName || this.tagName /* FIXME: read off prototype */ || null;
     this.isVirtual = false;
     this.elementId = null;
 
