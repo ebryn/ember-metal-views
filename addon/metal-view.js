@@ -1,3 +1,6 @@
+/* jshint proto: true */
+/* global CoreObject */
+
 import Ember from 'ember';
 import { extend } from './utils';
 
@@ -19,45 +22,64 @@ var IS_BINDING = Ember.IS_BINDING;
 var computed = Ember.computed;
 var get = Ember.get;
 
-function MetalView(props) {
-  this.isView = true;
-  this.tagName = null;
-  this.isVirtual = false;
-  this.elementId = null;
-  this._keywords = undefined;
-  this._baseContext = undefined;
-  this._contextStream = undefined;
-  this._streamBindings = undefined;
+CoreObject.create = function(props) {
+  return new this(props);
+};
 
-  var meta = metaFor(this); // FIXME
-  var proto = meta.proto;
-  meta.proto = this; // Secret handshake to prevent observers firing during init
+CoreObject.reopenClass = function(props) {
+  extend(this, props);
+};
 
-  var bindings = meta.bindings = meta.bindings || {};
-  var possibleDesc;
-  var desc;
-  for (var key in props) {
-    if (!props.hasOwnProperty(key)) { continue; }
-    if (IS_BINDING.test(key)) {
-      bindings[key] = props[key];
-    }
-    possibleDesc = this[key];
-    desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
-    if (desc) {
-      desc.set(this, key, props[key]);
-    } else {
-      this[key] = props[key];
-    }
+var isBindingCache = Object.create(null);
+
+function isBinding(key) {
+  if (isBindingCache[key]) { return true; }
+  if (IS_BINDING.test(key)) {
+    isBindingCache[key] = 1;
+    return true;
   }
-
-  if (!this.isVirtual && !this.elementId) {
-    this.elementId = Ember.guidFor(this);
-  }
-
-  finishPartial(this, meta);
-  this.init();
-  meta.proto = proto;
+  return false;
 }
+
+var MetalView = CoreObject.extend({
+  init: function(props) {
+    this.isView = true;
+    this.tagName = props.tagName || null;
+    this.isVirtual = false;
+    this.elementId = null;
+
+    var meta = metaFor(this); // FIXME
+    var proto = meta.proto;
+    meta.proto = this; // Secret handshake to prevent observers firing during init
+
+    var bindings = meta.bindings = meta.bindings || {};
+    var possibleDesc;
+    var desc;
+    var keys = Object.keys(props);
+    var key;
+    for (var i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      if (isBinding(key)) {
+        bindings[key] = props[key];
+      } else {
+        possibleDesc = this[key];
+        desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
+        if (desc) {
+          desc.set(this, key, props[key]);
+        } else {
+          this[key] = props[key];
+        }
+      }
+    }
+
+    if (!this.isVirtual && !this.elementId) {
+      this.elementId = Ember.guidFor(this);
+    }
+
+    finishPartial(this, meta);
+    meta.proto = proto;
+  }
+});
 
 MetalView.prototype.__ember_meta__ = metaFor(MetalView.prototype);
 MetalView.prototype.__ember_meta__.proto = MetalView.prototype;
@@ -71,6 +93,8 @@ Ember.defineProperty(MetalView.prototype, 'parentView', computed('_parentView', 
     return parent;
   }
 }));
+
+function noop() {}
 
 extend(MetalView.prototype, {
 
@@ -90,7 +114,7 @@ extend(MetalView.prototype, {
         buffer.pushChildView(childView);
       }
 
-      view.propertyDidChange('childViews');
+      if (view.propertyDidChange !== noop) { view.propertyDidChange('childViews'); }
 
       return childView;
     },
@@ -100,7 +124,7 @@ extend(MetalView.prototype, {
     }
   },
 
-  propertyDidChange: function() {},
+  propertyDidChange: noop,
 
   destroy: function() {
     // TODO: EmberObject#destroy stuff?
@@ -163,28 +187,28 @@ extend(MetalView, {
     return MetalView.prototype;
   },
 
-  create: function(props) {
-    return new this(props);
-  },
+  // create: function(props) {
+  //   return new this(props);
+  // },
 
   extend: function(props) {
-    var ParentClass = this;
-    var Subclass = function(props) { ParentClass.call(this, props); };
-    Subclass.superclass = ParentClass;
-    var classProps = ParentClass.classProps;
+    var ParentClass = this.__proto__;
+    var originalExtend = ParentClass.extend;
+    var Subclass = originalExtend.call(this, props);
+    var classProps = this.classProps;
     var key;
     for (var i = 0, l = classProps.length; i < l; i++) {
       key = classProps[i];
       Subclass[key] = this[key];
     }
-    Subclass.prototype = Ember.create(this.prototype);
-    if (props) { extend(Subclass.prototype, props); }
+    // Subclass.prototype = Ember.create(this.prototype);
+    // if (props) { extend(Subclass.prototype, props); }
     return Subclass;
   },
 
-  reopenClass: function(props) {
-    extend(this, props);
-  }
+  // reopenClass: function(props) {
+  //   extend(this, props);
+  // }
 });
 
 export default MetalView;

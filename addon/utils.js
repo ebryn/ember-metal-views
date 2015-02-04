@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 export function extend(obj, props) {
   var keys = Ember.keys(props);
   var key;

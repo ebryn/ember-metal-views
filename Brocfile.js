@@ -9,6 +9,8 @@ var app = new EmberAddon({
   }
 });
 
+app.import('vendor/core-object.dist.js');
+
 // Use `app.import` to add additional libraries to the generated
 // output files.
 //

@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 export default Ember.Route.extend({
   model: function() {
     var rows = [];
@@ -12,4 +14,4 @@ export default Ember.Route.extend({
       rows: rows
     };
   }
-})
+});

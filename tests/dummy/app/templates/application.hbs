@@ -11,6 +11,9 @@
   4
 {{/view}}
 
+<button {{action "toggleTable"}}>toggle table</button>
+
+{{#if showTable}}
 <table>
   <tbody>
     {{#each model.rows itemView='test-metal-view' as |row|}}
@@ -22,3 +25,4 @@
     {{/each}}
   </tbody>
 </table>
+{{/if}}
