@@ -60,7 +60,7 @@ var MetalView = CoreObject.extend({
     for (var i = 0, l = keys.length; i < l; i++) {
       key = keys[i];
       if (isBinding(key)) {
-        bindings[key] = props[key];
+        this[key] = bindings[key] = props[key];
       } else {
         possibleDesc = this[key];
         desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
