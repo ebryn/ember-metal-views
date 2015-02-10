@@ -164,7 +164,10 @@ extend(MetalView.prototype, {
     this[property.name] = property.descriptor.value;
   },
 
-  _wrapAsScheduled: Ember.View.proto()._wrapAsScheduled
+  _wrapAsScheduled: Ember.View.proto()._wrapAsScheduled,
+
+  applyAttributesToBuffer: Ember.View.proto().applyAttributesToBuffer,
+  attributeBindings: []
 });
 
 var EmberViewModule = Ember.__loader.require('ember-views/views/view');
@@ -174,6 +177,7 @@ EmberViewModule.ViewStreamSupport.apply(MetalView.prototype);
 EmberViewModule.ViewChildViewsSupport.apply(MetalView.prototype);
 EmberViewModule.ViewContextSupport.apply(MetalView.prototype);
 EmberViewModule.TemplateRenderingSupport.apply(MetalView.prototype);
+EmberViewModule.ClassNamesSupport.apply(MetalView.prototype);
 
 var Evented = Ember.__loader.require('ember-runtime/mixins/evented')['default'];
 Evented.apply(MetalView.prototype);
