@@ -47,6 +47,7 @@ var MetalView = CoreObject.extend({
     this.tagName = props.tagName || this.tagName /* FIXME: read off prototype */ || null;
     this.isVirtual = false;
     this.elementId = null;
+    this._actions = this.actions;
 
     var meta = metaFor(this); // FIXME
     var proto = meta.proto;
@@ -177,6 +178,8 @@ EmberViewModule.TemplateRenderingSupport.apply(MetalView.prototype);
 var Evented = Ember.__loader.require('ember-runtime/mixins/evented')['default'];
 Evented.apply(MetalView.prototype);
 
+var ActionHandler = Ember.__loader.require('ember-runtime/mixins/action_handler')['default'];
+ActionHandler.apply(MetalView.prototype);
 extend(MetalView, {
   classProps: ['classProps', 'isClass', 'isViewClass', 'isMethod', 'proto', 'create', 'extend', 'reopenClass'],
   isClass: true,
