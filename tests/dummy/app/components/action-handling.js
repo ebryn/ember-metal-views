@@ -4,6 +4,9 @@ export default MetalComponent.extend({
   actions: {
     derp: function() {
       alert('you win!');
+    },
+    outsideAction: function() {
+      this.sendAction('outsideAction');
     }
   }
 });

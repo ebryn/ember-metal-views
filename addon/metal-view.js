@@ -182,6 +182,9 @@ EmberViewModule.ClassNamesSupport.apply(MetalView.prototype);
 var AttributeBindingsSupport = Ember.__loader.require('ember-views/mixins/attribute_bindings_support')['default'];
 AttributeBindingsSupport.apply(MetalView.prototype);
 
+var TargetActionSupport = Ember.__loader.require('ember-runtime/mixins/target_action_support')['default'];
+TargetActionSupport.apply(MetalView.prototype);
+
 var Evented = Ember.__loader.require('ember-runtime/mixins/evented')['default'];
 Evented.apply(MetalView.prototype);
 

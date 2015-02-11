@@ -5,7 +5,10 @@ import { extend } from "./utils";
 var MetalComponent = MetalView.extend();
 
 var MethodsFromEmberComponent = {
-  _yield: Ember.Component.proto()._yield
+  _yield: Ember.Component.proto()._yield,
+  sendAction: Ember.Component.proto().sendAction,
+  send: Ember.Component.proto().send,
+  _setupKeywords: Ember.Component.proto()._setupKeywords
 };
 
 var ComponentMixin = Ember.Mixin.create({
@@ -14,7 +17,9 @@ var ComponentMixin = Ember.Mixin.create({
     props.controller = this;
     this._super(props);
     this._keywords.view = this;
-  }
+  },
+
+  targetObject: Ember.Component.proto().targetObject
 });
 
 ComponentMixin.apply(MetalComponent.prototype);
