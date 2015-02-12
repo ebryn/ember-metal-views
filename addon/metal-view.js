@@ -167,7 +167,10 @@ extend(MetalView.prototype, {
   _wrapAsScheduled: Ember.View.proto()._wrapAsScheduled,
 
   applyAttributesToBuffer: Ember.View.proto().applyAttributesToBuffer,
-  attributeBindings: []
+  attributeBindings: [],
+
+  trigger: Ember.CoreView.proto().trigger,
+  has: Ember.CoreView.proto().has
 });
 
 var EmberViewModule = Ember.__loader.require('ember-views/views/view');
