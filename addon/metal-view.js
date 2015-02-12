@@ -167,10 +167,7 @@ extend(MetalView.prototype, {
   _wrapAsScheduled: Ember.View.proto()._wrapAsScheduled,
 
   applyAttributesToBuffer: Ember.View.proto().applyAttributesToBuffer,
-  attributeBindings: [],
-
-  trigger: Ember.CoreView.proto().trigger,
-  has: Ember.CoreView.proto().has
+  attributeBindings: []
 });
 
 var EmberViewModule = Ember.__loader.require('ember-views/views/view');
@@ -193,6 +190,12 @@ Evented.apply(MetalView.prototype);
 
 var ActionHandler = Ember.__loader.require('ember-runtime/mixins/action_handler')['default'];
 ActionHandler.apply(MetalView.prototype);
+
+Ember.Mixin.create({
+  trigger: Ember.CoreView.proto().trigger,
+  has: Ember.CoreView.proto().has
+}).apply(MetalView.prototype);
+
 extend(MetalView, {
   classProps: ['classProps', 'isClass', 'isViewClass', 'isMethod', 'proto', 'create', 'extend', 'reopenClass'],
   isClass: true,
