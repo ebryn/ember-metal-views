@@ -127,7 +127,9 @@ extend(MetalView.prototype, {
 
     invokeObserver: function(target, observer) {
       observer.call(target);
-    }
+    },
+
+    appendAttr: Ember.View.proto()._states.inBuffer.appendAttr
   },
 
   propertyDidChange: noop,
@@ -172,7 +174,8 @@ extend(MetalView.prototype, {
   _wrapAsScheduled: Ember.View.proto()._wrapAsScheduled,
 
   applyAttributesToBuffer: Ember.View.proto().applyAttributesToBuffer,
-  attributeBindings: []
+  attributeBindings: [],
+  appendAttr: Ember.View.proto().appendAttr,
 });
 
 var EmberViewModule = Ember.__loader.require('ember-views/views/view');
