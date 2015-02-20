@@ -101,6 +101,11 @@ extend(MetalView.prototype, {
 
   _childViews: [],
 
+  $: function(sel) {
+    var elem = this.element;
+    return sel ? jQuery(sel, elem) : jQuery(elem);
+  },
+
   // TODO: remove this
   currentState: {
     appendChild: function(view, childView, options) {
